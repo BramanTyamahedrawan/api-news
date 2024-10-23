@@ -18,27 +18,15 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     protected $primaryKey = 'id';
     protected $keyType = 'string';
-    public $incrementing = false;
+    public $incrementing = true;
     public $timestamps = true;
 
     protected $fillable = [
-        'id',
         'username',
         'password',
         'name',
         'token'
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function (User $model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
-    }
 
     public function getJWTIdentifier()
     {
@@ -48,5 +36,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function role()
+    {
+        return $this->hasOne(Role::class);
     }
 }

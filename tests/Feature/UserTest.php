@@ -13,9 +13,15 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('setup:roles-permissions')->run();
+        $this->seed(UserSeeder::class);
+    }
+
     public function testLoginSuccess()
     {
-        $this->seed([UserSeeder::class]);
         $response = $this->postJson('/api/users/login', [
             'username' => 'admin',
             'password' => 'password',
@@ -26,12 +32,12 @@ class UserTest extends TestCase
                     'name' => 'Administrator',
                 ]
             ]);
+
         $this->assertArrayHasKey('token', $response->json('data'));
     }
 
     public function testLoginFailure()
     {
-        $this->seed([UserSeeder::class]);
         $this->postJson('/api/users/login', [
             'username' => 'admin',
             'password' => 'wrongpassword',
@@ -45,7 +51,6 @@ class UserTest extends TestCase
 
     public function testLoginUserNotFound()
     {
-        $this->seed([UserSeeder::class]);
         $this->postJson('/api/users/login', [
             'username' => 'nonexistent',
             'password' => 'password',
