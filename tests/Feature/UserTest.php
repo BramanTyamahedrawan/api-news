@@ -7,6 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
+use Database\Seeders\RolePermissionsSeeder;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 
 class UserTest extends TestCase
@@ -16,7 +18,7 @@ class UserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('setup:roles-permissions')->run();
+        $this->seed(RolePermissionsSeeder::class);
         $this->seed(UserSeeder::class);
     }
 
@@ -25,7 +27,9 @@ class UserTest extends TestCase
         $response = $this->postJson('/api/users/login', [
             'username' => 'admin',
             'password' => 'password',
-        ])->assertStatus(200)
+        ]);
+
+        $response->assertStatus(200)
             ->assertJson([
                 'data' => [
                     'username' => 'admin',
@@ -58,6 +62,23 @@ class UserTest extends TestCase
             ->assertJson([
                 'errors' => [
                     'message' => 'Unauthorized',
+                ]
+            ]);
+    }
+
+    public function testCurrentUserSuccess()
+    {
+        $user = User::where('username', 'admin')->first();
+        // $user->assignRole('admin');
+        $token = JWTAuth::fromUser($user);
+
+        $this->getJson('/api/users/current', [
+            'Authorization' => 'Bearer ' . $token,
+        ])->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'username' => 'admin',
+                    'name' => 'Administrator',
                 ]
             ]);
     }

@@ -58,4 +58,20 @@ class UserController extends Controller
             ]
         ], Response::HTTP_OK);
     }
+
+    public function getUserCurrent(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+
+            return response()->json([
+                'data' => [
+                    'username' => $user->username,
+                    'name' => $user->name,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+        }
+    }
 }
