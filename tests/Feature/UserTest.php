@@ -69,7 +69,6 @@ class UserTest extends TestCase
     public function testCurrentUserSuccess()
     {
         $user = User::where('username', 'admin')->first();
-        // $user->assignRole('admin');
         $token = JWTAuth::fromUser($user);
 
         $this->getJson('/api/users/current', [
@@ -81,5 +80,15 @@ class UserTest extends TestCase
                     'name' => 'Administrator',
                 ]
             ]);
+    }
+
+    public function testLogoutSuccess()
+    {
+        $user = User::where('username', 'admin')->first();
+        $token = JWTAuth::fromUser($user);
+
+        $this->deleteJson('/api/users/logout', [], [
+            'Authorization' => 'Bearer ' . $token,
+        ])->assertStatus(200);
     }
 }

@@ -8,4 +8,5 @@ Route::post('/users/login', [UserController::class, 'login']);
 
 Route::group(['middleware' => ['auth:api', 'role:admin']], function () {
     Route::get('/users/current', [UserController::class, 'getUserCurrent']);
+    Route::delete('/users/logout', [UserController::class, 'logout']);
 });

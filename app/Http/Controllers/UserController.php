@@ -74,4 +74,16 @@ class UserController extends Controller
             return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
         }
     }
+
+    public function logout()
+    {
+        try {
+            $user = Auth::user();
+            $token = JWTAuth::fromUser($user);
+            JWTAuth::setToken($token)->invalidate();
+            return response()->json(['message' => 'Successfully logged out'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+        }
+    }
 }
